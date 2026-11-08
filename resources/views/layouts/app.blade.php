@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans antialiased"
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden w-full min-h-screen flex flex-col"
       x-data="{
           qaModalOpen: false,
           auditTab: 'AUDIT_SUMMARY',
@@ -42,12 +42,12 @@
     @endphp
 
     <!-- BAR STATUS LINGKUNGAN, DATABASE MYSQL, & PUSH NOTIFICATION -->
-    <div class="bg-slate-950 text-slate-200 text-xs py-2 px-4 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-bold bg-emerald-600 text-white">
-                    <i data-lucide="database" class="w-3.5 h-3.5"></i>
-                    <span>Database MySQL Terhubung (Eloquent ORM)</span>
+    <div class="bg-slate-950 text-slate-200 text-xs py-2.5 px-3 sm:px-4 border-b border-slate-800 w-full">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold bg-emerald-600 text-white text-[11px]">
+                    <i data-lucide="database" class="w-3.5 h-3.5 shrink-0"></i>
+                    <span class="truncate">Database MySQL Terhubung (Eloquent ORM)</span>
                 </span>
 
                 <span class="px-2 py-0.5 rounded text-[11px] font-bold border {{ $envMode === 'PRODUCTION' ? 'bg-blue-950 text-blue-200 border-blue-700' : 'bg-amber-950 text-amber-200 border-amber-700' }}">
@@ -58,18 +58,18 @@
                         @click="requestPushNotif()"
                         class="px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1"
                         :class="notifPerm === 'granted' ? 'bg-emerald-950 text-emerald-200 border-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-amber-200 border-slate-700'">
-                    <i data-lucide="bell" class="w-3 h-3"></i>
+                    <i data-lucide="bell" class="w-3 h-3 shrink-0"></i>
                     <span x-text="notifPerm === 'granted' ? 'Push Notif Aktif' : 'Aktifkan Push Notif'"></span>
                 </button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
                 @if($envMode === 'QA_DEV')
-                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-amber-600/50">
-                        <span class="text-amber-300 font-bold text-[11px]">Simulasi QA:</span>
+                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-900 p-1.5 rounded border border-amber-600/50 w-full sm:w-auto">
+                        <span class="text-amber-300 font-bold text-[11px] mr-1">Simulasi QA:</span>
                         <form action="{{ route('qa.provision') }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-200 border border-slate-700 font-semibold">
+                            <button type="submit" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-200 border border-slate-700 font-semibold text-[11px]">
                                 Siapkan Akun Uji QA
                             </button>
                         </form>
@@ -77,48 +77,49 @@
                             @csrf
                             <input type="hidden" name="email" value="budi.santoso@kampus.ac.id">
                             <input type="hidden" name="workspace" value="CUSTOMER">
-                            <button type="submit" class="px-2 py-0.5 rounded bg-blue-800 text-white font-semibold">Uji Customer</button>
+                            <button type="submit" class="px-2 py-0.5 rounded bg-blue-800 text-white font-semibold text-[11px]">Uji Customer</button>
                         </form>
                         <form action="{{ route('qa.switch') }}" method="POST" class="inline">
                             @csrf
                             <input type="hidden" name="email" value="dimas.pratama@kampus.ac.id">
                             <input type="hidden" name="workspace" value="ADMIN">
-                            <button type="submit" class="px-2 py-0.5 rounded bg-teal-700 text-white font-semibold">Uji Admin</button>
+                            <button type="submit" class="px-2 py-0.5 rounded bg-teal-700 text-white font-semibold text-[11px]">Uji Admin</button>
                         </form>
                         <form action="{{ route('qa.switch') }}" method="POST" class="inline">
                             @csrf
                             <input type="hidden" name="email" value="sysadmin@jastipkampus.ac.id">
                             <input type="hidden" name="workspace" value="SYSADMIN">
-                            <button type="submit" class="px-2 py-0.5 rounded bg-rose-800 text-white font-semibold">Uji SysAdmin</button>
+                            <button type="submit" class="px-2 py-0.5 rounded bg-rose-800 text-white font-semibold text-[11px]">Uji SysAdmin</button>
                         </form>
                     </div>
                 @endif
 
                 <form action="{{ route('qa.toggle') }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold">
+                    <button type="submit" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-[11px]">
                         {{ $envMode === 'PRODUCTION' ? 'Aktifkan Mode QA' : 'Kembali ke Mode Produksi' }}
                     </button>
                 </form>
 
-                <button type="button" @click="qaModalOpen = true" class="px-2.5 py-1 rounded bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold flex items-center gap-1">
-                    <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>
+                <button type="button" @click="qaModalOpen = true" class="px-2.5 py-1 rounded bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold flex items-center gap-1 text-[11px]">
+                    <i data-lucide="clipboard-check" class="w-3.5 h-3.5 shrink-0"></i>
                     <span>Audit, Uji Wajib & Arsitektur</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- HEADER UTAMA JASTIPKAMPUS -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-sm {{ !$authUser ? 'bg-blue-900' : ($activeWorkspace === 'SYSADMIN_DASHBOARD' ? 'bg-rose-800' : ($activeWorkspace === 'ADMIN_DASHBOARD' ? 'bg-teal-700' : 'bg-blue-900')) }}">
+    <!-- HEADER UTAMA JASTIPKAMPUS (RESPONSIF MOBILE & DESKTOP) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Bagian Logo & Judul -->
+            <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-sm shrink-0 {{ !$authUser ? 'bg-blue-900' : ($activeWorkspace === 'SYSADMIN_DASHBOARD' ? 'bg-rose-800' : ($activeWorkspace === 'ADMIN_DASHBOARD' ? 'bg-teal-700' : 'bg-blue-900')) }}">
                     <i data-lucide="package" class="w-5 h-5"></i>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('public.landing') }}" class="font-extrabold text-lg tracking-tight text-slate-900">
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <a href="{{ route('public.landing') }}" class="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 leading-tight">
                             {{ $systemConfig->platform_name ?? 'JastipKampus' }}
                         </a>
                         @if($authUser)
@@ -127,51 +128,52 @@
                             </span>
                         @endif
                     </div>
-                    <p class="text-[11px] text-slate-500">
+                    <p class="text-[11px] text-slate-500 leading-snug mt-0.5 line-clamp-2 sm:line-clamp-1">
                         Platform Jasa Titip Antar Mahasiswa Berbasis Escrow & Lingkungan Akademik
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <!-- Bagian Tombol Navigasi & Aksi -->
+            <div class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t border-slate-100 sm:border-t-0">
                 @if($authUser)
                     @if($authUser->hasRole('CUSTOMER') || $authUser->hasRole('ADMIN'))
                         <a href="{{ route('customer.dashboard') }}"
-                           class="px-3 py-1.5 rounded-lg text-xs font-bold border transition {{ $activeWorkspace === 'CUSTOMER_DASHBOARD' ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
+                           class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border transition whitespace-nowrap {{ $activeWorkspace === 'CUSTOMER_DASHBOARD' ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
                             Customer Dashboard
                         </a>
                     @endif
 
                     @if($authUser->isVerifiedAdmin())
                         <a href="{{ route('admin.dashboard') }}"
-                           class="px-3 py-1.5 rounded-lg text-xs font-bold border transition {{ $activeWorkspace === 'ADMIN_DASHBOARD' ? 'bg-teal-700 text-white border-teal-700' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
+                           class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border transition whitespace-nowrap {{ $activeWorkspace === 'ADMIN_DASHBOARD' ? 'bg-teal-700 text-white border-teal-700' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
                             Admin Dashboard
                         </a>
                     @endif
 
                     @if($authUser->hasRole('SYSADMIN'))
                         <a href="{{ route('sysadmin.dashboard') }}"
-                           class="px-3 py-1.5 rounded-lg text-xs font-bold border transition {{ $activeWorkspace === 'SYSADMIN_DASHBOARD' ? 'bg-rose-800 text-white border-rose-800' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
+                           class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border transition whitespace-nowrap {{ $activeWorkspace === 'SYSADMIN_DASHBOARD' ? 'bg-rose-800 text-white border-rose-800' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
                             Administrator Utama
                         </a>
                     @endif
 
-                    <div class="h-5 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                    <span class="text-xs font-bold text-slate-700 hidden md:inline">{{ $authUser->name }}</span>
+                    <div class="h-5 w-px bg-slate-200 mx-1 hidden md:block"></div>
+                    <span class="text-xs font-bold text-slate-700 hidden lg:inline">{{ $authUser->name }}</span>
 
                     <form action="{{ route('auth.logout') }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1">
-                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <button type="submit" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 whitespace-nowrap">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5 shrink-0"></i>
                             <span>Logout</span>
                         </button>
                     </form>
                 @else
-                    <button type="button" @click="$dispatch('open-auth-modal', 'LOGIN')" class="px-3.5 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold flex items-center gap-1.5">
-                        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                    <button type="button" @click="$dispatch('open-auth-modal', 'LOGIN')" class="px-3 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="log-in" class="w-3.5 h-3.5 shrink-0"></i>
                         <span>Masuk</span>
                     </button>
-                    <button type="button" @click="$dispatch('open-auth-modal', 'REGISTER')" class="px-3.5 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold">
+                    <button type="button" @click="$dispatch('open-auth-modal', 'REGISTER')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold whitespace-nowrap">
                         Daftar Akun Mahasiswa
                     </button>
                 @endif
@@ -182,38 +184,38 @@
     <!-- TOAST NOTIFIKASI FLASH SESSION & VALIDATION ERRORS -->
     @if(session('success') || session('error') || session('info') || $errors->any())
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-             class="fixed bottom-5 right-5 z-50 max-w-md bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3">
+             class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-5 z-50 sm:max-w-md bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3">
             @if(session('error') || $errors->any())
                 <i data-lucide="x-circle" class="w-5 h-5 text-rose-400 shrink-0"></i>
-                <span class="text-xs sm:text-sm font-medium">
+                <span class="text-xs sm:text-sm font-medium break-words">
                     {{ session('error') ?? $errors->first() }}
                 </span>
             @else
                 <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-400 shrink-0"></i>
-                <span class="text-xs sm:text-sm font-medium">
+                <span class="text-xs sm:text-sm font-medium break-words">
                     {{ session('success') ?? session('info') }}
                 </span>
             @endif
-            <button type="button" @click="show = false" class="text-slate-400 hover:text-white ml-auto">
+            <button type="button" @click="show = false" class="text-slate-400 hover:text-white ml-auto shrink-0">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
     @endif
 
     <!-- KONTEN UTAMA -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
         @yield('content')
     </main>
 
     <!-- MODAL LAPORAN AUDIT & ARSITEKTUR LARAVEL + MYSQL -->
-    <div x-show="qaModalOpen" x-cloak class="fixed inset-0 z-50 bg-slate-900/75 flex items-center justify-center p-4">
-        <div @click.away="qaModalOpen = false" class="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full max-h-[88vh] overflow-y-auto p-6 space-y-5 shadow-2xl text-xs">
-            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+    <div x-show="qaModalOpen" x-cloak class="fixed inset-0 z-50 bg-slate-900/75 flex items-center justify-center p-3 sm:p-4">
+        <div @click.away="qaModalOpen = false" class="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full max-h-[88vh] overflow-y-auto p-4 sm:p-6 space-y-5 shadow-2xl text-xs">
+            <div class="flex items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
                 <div>
                     <span class="font-bold uppercase tracking-wider text-teal-700">Audit Teknis & Arsitektur Konversi</span>
-                    <h2 class="text-lg font-extrabold text-slate-900">Pusat Informasi Konversi JastipKampus (Laravel + MySQL)</h2>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Pusat Informasi Konversi JastipKampus (Laravel + MySQL)</h2>
                 </div>
-                <button type="button" @click="qaModalOpen = false" class="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white font-bold">Tutup</button>
+                <button type="button" @click="qaModalOpen = false" class="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white font-bold shrink-0">Tutup</button>
             </div>
 
             <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 leading-relaxed">
