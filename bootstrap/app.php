@@ -11,7 +11,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Biarkan isi middleware Anda yang sudah ada di sini
+        // Biarkan konfigurasi middleware Anda tetap di sini
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
