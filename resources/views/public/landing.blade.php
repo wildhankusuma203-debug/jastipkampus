@@ -1,6 +1,36 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    // Pastikan setiap Program Studi otomatis memiliki Kelas A sampai F di database
+    try {
+        if (class_exists(\App\Models\AcademicClass::class) && isset($studyPrograms)) {
+            $existingMap = [];
+            foreach ($classes as $c) {
+                $existingMap[$c->study_program_id . '_' . trim($c->name)] = true;
+            }
+            $createdNew = false;
+            foreach ($studyPrograms as $prog) {
+                foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $letter) {
+                    $targetName = trim($prog->name) . ' ' . $letter;
+                    if (!isset($existingMap[$prog->id . '_' . $targetName])) {
+                        \App\Models\AcademicClass::firstOrCreate(
+                            ['study_program_id' => $prog->id, 'name' => $targetName],
+                            ['cohort_year' => (int) date('Y')]
+                        );
+                        $createdNew = true;
+                    }
+                }
+            }
+            if ($createdNew) {
+                $classes = \App\Models\AcademicClass::orderBy('name')->get();
+            }
+        }
+    } catch (\Throwable $e) {
+        // Abaikan jika koneksi sedang dalam mode baca saja
+    }
+@endphp
+
 <div x-data="{
         authModalOpen: {{ $errors->any() ? 'true' : 'false' }},
         authMode: 'LOGIN',
@@ -13,7 +43,9 @@
             return this.programs.filter(p => String(p.faculty_id) === String(this.selectedFaculty));
         },
         get filteredClasses() {
-            return this.classes.filter(c => String(c.study_program_id) === String(this.selectedProgram));
+            return this.classes
+                .filter(c => String(c.study_program_id) === String(this.selectedProgram))
+                .sort((a, b) => a.name.localeCompare(b.name));
         }
     }"
     @open-auth-modal.window="authMode = $event.detail; authModalOpen = true"
@@ -34,15 +66,20 @@
                 akademik, pencetakan tugas, atau pembelian perlengkapan kuliah dengan mahasiswa penyedia
                 layanan terverifikasi. Dilengkapi fitur Patokan Harga Customer, Rekening Bersama (Escrow), Chat In-App, dan Bukti Foto.
             </p>
-            <div class="flex flex-wrap gap-3 pt-2">
+            <div class="flex flex-wrap gap-2.5 sm:gap-3 pt-2">
                 <button type="button" @click="authMode = 'LOGIN'; authModalOpen = true"
-                        class="px-5 py-2.5 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold flex items-center gap-2">
+                        class="px-4 sm:px-5 py-2.5 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold flex items-center gap-2">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
                     <span>Masuk ke Akun</span>
                 </button>
                 <button type="button" @click="authMode = 'REGISTER'; authModalOpen = true"
-                        class="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs sm:text-sm font-bold">
+                        class="px-4 sm:px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs sm:text-sm font-bold">
                     Daftar Akun Customer Baru
+                </button>
+                <button type="button" @click="authMode = 'SYSADMIN_LOGIN'; authModalOpen = true"
+                        class="px-4 py-2.5 rounded-xl bg-rose-800 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    <span>Login Admin Utama (SysAdmin)</span>
                 </button>
                 @if(!$hasSysAdmin)
                     <button type="button" @click="authMode = 'SYSADMIN_INIT'; authModalOpen = true"
@@ -120,19 +157,19 @@
         @endif
     </div>
 
-    <!-- MODAL LOGIN, REGISTRASI CUSTOMER, & INISIALISASI SYSADMIN -->
+    <!-- MODAL LOGIN, REGISTRASI CUSTOMER, & LOGIN/SETUP SYSADMIN -->
     <div x-show="authModalOpen" x-cloak class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
-        <div @click.away="authModalOpen = false" class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl text-xs">
+        <div @click.away="authModalOpen = false" class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl text-xs max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 class="font-extrabold text-base text-slate-900"
-                    x-text="authMode === 'LOGIN' ? 'Login Terverifikasi JastipKampus' : (authMode === 'REGISTER' ? 'Registrasi Akun Mahasiswa (Peran CUSTOMER)' : 'Inisialisasi Aman Administrator Utama Pertama')">
+                    x-text="authMode === 'LOGIN' ? 'Login Terverifikasi JastipKampus' : (authMode === 'REGISTER' ? 'Registrasi Akun Mahasiswa (Peran CUSTOMER)' : (authMode === 'SYSADMIN_LOGIN' ? 'Login Administrator Utama (SysAdmin)' : 'Inisialisasi Aman Administrator Utama Pertama'))">
                 </h3>
                 <button type="button" @click="authModalOpen = false" class="text-slate-400 hover:text-slate-700">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <!-- FORM LOGIN -->
+            <!-- FORM LOGIN UMUM -->
             <form x-show="authMode === 'LOGIN'" action="{{ route('auth.login') }}" method="POST" class="space-y-3">
                 @csrf
                 <div>
@@ -146,19 +183,49 @@
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-900 hover:bg-blue-800 text-white font-bold">
                     Masuk dengan Verifikasi Kredensial
                 </button>
-                <div class="flex justify-between pt-2">
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
                     <button type="button" @click="authMode = 'REGISTER'" class="text-teal-700 font-bold hover:underline">
                         Belum punya akun? Daftar Customer
                     </button>
-                    @if(!$hasSysAdmin)
-                        <button type="button" @click="authMode = 'SYSADMIN_INIT'" class="text-rose-700 font-bold hover:underline">
-                            Setup SysAdmin
-                        </button>
-                    @endif
+                    <button type="button" @click="authMode = 'SYSADMIN_LOGIN'" class="text-rose-700 font-bold hover:underline">
+                        Login Admin Utama (SysAdmin)
+                    </button>
                 </div>
             </form>
 
-            <!-- FORM REGISTRASI CUSTOMER (DENGAN DROPDOWN AKADEMIK BERJENJANG) -->
+            <!-- FORM KHUSUS LOGIN ADMIN UTAMA / SYSADMIN -->
+            <div x-show="authMode === 'SYSADMIN_LOGIN'" class="space-y-3">
+                <div class="p-2.5 rounded-lg bg-rose-50 text-rose-900 border border-rose-200">
+                    Masuk ke panel <strong>Administrator Utama (SysAdmin)</strong> untuk memverifikasi pengajuan KTM Admin dan memantau transaksi Escrow.
+                </div>
+                <form action="{{ route('auth.login') }}" method="POST" class="space-y-3">
+                    @csrf
+                    <div>
+                        <label class="block font-bold mb-1">Email Administrator Utama *</label>
+                        <input type="email" name="email" required value="{{ old('email', 'sysadmin@jastipkampus.ac.id') }}" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1">Kata Sandi SysAdmin *</label>
+                        <input type="password" name="password" required placeholder="Masukkan kata sandi SysAdmin" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 rounded-xl bg-rose-800 hover:bg-rose-700 text-white font-bold">
+                        Masuk sebagai Administrator Utama
+                    </button>
+                </form>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" @click="authMode = 'LOGIN'" class="text-slate-600 font-bold hover:underline">
+                        Kembali ke Login Mahasiswa
+                    </button>
+                    @if(!$hasSysAdmin)
+                        <button type="button" @click="authMode = 'SYSADMIN_INIT'" class="text-rose-700 font-bold hover:underline">
+                            Setup Awal SysAdmin Baru
+                        </button>
+                    @endif
+                </div>
+            </div>
+
+            <!-- FORM REGISTRASI CUSTOMER (KELAS A SAMPAI F TANPA TAHUN) -->
             <form x-show="authMode === 'REGISTER'" action="{{ route('auth.register') }}" method="POST" class="space-y-2.5">
                 @csrf
                 <div class="p-2.5 rounded-lg bg-blue-50 text-blue-900">
@@ -168,7 +235,7 @@
                     <label class="block font-bold mb-1">Nama Lengkap *</label>
                     <input type="text" name="name" required value="{{ old('name') }}" class="w-full px-3 py-1.5 rounded-lg border border-slate-300">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
                         <label class="block font-bold mb-1">Email *</label>
                         <input type="email" name="email" required value="{{ old('email') }}" class="w-full px-3 py-1.5 rounded-lg border border-slate-300">
@@ -205,7 +272,7 @@
                     <select name="class_id" x-model="selectedClass" :disabled="!selectedProgram" required class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold">
                         <option value="">-- Pilih Kelas --</option>
                         <template x-for="cls in filteredClasses" :key="cls.id">
-                            <option :value="cls.id" x-text="cls.name + ' (Angkatan ' + cls.cohort_year + ')'"></option>
+                            <option :value="cls.id" x-text="cls.name"></option>
                         </template>
                     </select>
                 </div>

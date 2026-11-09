@@ -1,5 +1,9 @@
 <?php
 
+putenv('APP_DEBUG=true');
+$_ENV['APP_DEBUG'] = 'true';
+$_SERVER['APP_DEBUG'] = 'true';
+
 ini_set('upload_max_filesize', '10M');
 ini_set('post_max_size', '12M');
 
@@ -22,5 +26,4 @@ foreach ($directories as $dir) {
 $_ENV['APP_STORAGE'] = $storagePath;
 $_SERVER['APP_STORAGE'] = $storagePath;
 
-// Teruskan ke public/index.php agar vendor/autoload.php dimuat lebih dulu
 require __DIR__ . '/../public/index.php';
